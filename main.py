@@ -143,11 +143,11 @@ def topicPage(topicid):
             print(topic.progress)
  
             if len(topic.progress) == 0:
-                return render_template("topic.html", user=user, topic=topic, svg_code="No data to show!", results={})
+                return render_template("topic.html", user=user, topic=topic, length=0, svg_code="No data to show!", results={})
 
             svg_code = get_visuals(topic.progress, topic.title, topic.unit)
             results = get_results(topic.progress, topic.needs_to_increase)
-            return render_template("topic.html", user=user, topic=topic, svg_code=svg_code, results=results)
+            return render_template("topic.html", user=user, length=1, topic=topic, svg_code=svg_code, results=results)
     return redirect(url_for("home"))
 
 
