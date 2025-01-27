@@ -1,0 +1,266 @@
+{% extends "base.html" %} {% block style %}
+
+<style>
+  .container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  #form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    font-size: 18px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    margin-bottom: 15px;
+  }
+
+  #form div {
+    display: flex;
+    position: relative;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    margin: 5px 0;
+    width: 400px;
+    padding-bottom: 35px;
+  }
+
+  #form div.off,
+  .off {
+    display: none;
+  }
+
+  .redirect {
+    cursor: pointer;
+  }
+
+  .redirect span {
+    color: blueviolet;
+  }
+
+  #form div input {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+  }
+
+  #form div .warning {
+    color: red;
+    position: absolute;
+    bottom: 0;
+    opacity: 0;
+  }
+  #form div .warning.on {
+    animation: warning 5s linear forwards;
+  }
+
+  #form .btn {
+    outline: none;
+    border: none;
+    background-color: limegreen;
+    color: whitesmoke;
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  @keyframes warning {
+    0% {
+      translate: 0 20px;
+      opacity: 0;
+    }
+
+    2%,
+    98% {
+      translate: 0 0px;
+      opacity: 1;
+    }
+
+    100% {
+      translate: 0 -20px;
+      opacity: 0;
+    }
+  }
+</style>
+
+{% endblock %} {% block body %}
+
+<div class="container">
+  <h1>Welcome!</h1>
+
+  <form id="form">
+    <h2 class="title">Login</h2>
+    <h2 class="title off">Register</h2>
+    <div class="off" id="nameField">
+      <label for="name">Name</label>
+      <input type="text" name="name" />
+      <p class="warning">This is a warning!</p>
+    </div>
+    <div>
+      <label for="username">Username</label>
+      <input type="text" name="username" />
+      <p class="warning">This is a warning!</p>
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input type="password" name="password" />
+      <p class="warning">This is a warning!</p>
+    </div>
+    <button id="login_btn" class="btn">Login</button>
+    <button id="register_btn" class="btn off">Register</button>
+  </form>
+
+  <p class="redirect">Don't have an account? <span>Register!</span></p>
+  <p class="redirect off">Already have an account? <span>Login!</span></p>
+</div>
+
+<script>
+  const form = document.getElementById("form");
+  const texts = document.querySelectorAll(".warning");
+  const loginBtn = document.getElementById("login_btn");
+  const registerBtn = document.getElementById("register_btn");
+  const nameField = document.getElementById("nameField");
+
+  const titles = document.querySelectorAll(".title");
+  const redirects = document.querySelectorAll(".redirect");
+
+  let stats = 1;
+
+  function changePage() {
+    stats = stats === 1 ? 0 : 1;
+
+    if (stats === 1) {
+      titles[0].classList.remove("off");
+      redirects[0].classList.remove("off");
+      loginBtn.classList.remove("off");
+
+      titles[1].classList.add("off");
+      redirects[1].classList.add("off");
+      nameField.classList.add("off");
+      registerBtn.classList.add("off");
+    } else {
+      titles[0].classList.add("off");
+      redirects[0].classList.add("off");
+      loginBtn.classList.add("off");
+
+      titles[1].classList.remove("off");
+      redirects[1].classList.remove("off");
+      nameField.classList.remove("off");
+      registerBtn.classList.remove("off");
+    }
+  }
+
+  console.log(redirects);
+  redirects.forEach((link) => {
+    link.onclick = changePage;
+  });
+
+  texts.forEach((text) => {
+    text.addEventListener("animationend", (e) => {
+      text.classList.remove("on");
+      text.innerText = "";
+    });
+  });
+
+  function warn(x, y) {
+    texts[x].classList.remove("on");
+    texts[x].innerText = "";
+    setTimeout(() => {
+      texts[x].innerText = y;
+      texts[x].classList.add("on");
+    }, 50);
+  }
+
+  loginBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (form.username.value === "") {
+      warn(0, "Please Provide Username!");
+      return;
+    }
+
+    if (form.password.value === "") {
+      warn(1, "Please Provide Password!");
+      return;
+    }
+
+    const body = JSON.stringify({
+      username: form.username.value,
+      password: form.password.value,
+    });
+
+    fetch("/login", {
+      method: "POST",
+      body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.err != 0) {
+          warn(data.err - 1, data.message);
+        } else {
+          window.location.replace("/dashboard");
+        }
+      })
+      .catch((err) => console.log(err));
+  });
+
+  registerBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (form.name.value === "") {
+      warn(0, "Please Provide your Name!");
+      return;
+    }
+
+    if (form.username.value === "") {
+      warn(1, "Please Provide username!");
+      return;
+    }
+
+    if (form.password.value === "") {
+      warn(2, "Please Provide Password!");
+      return;
+    }
+
+    const body = JSON.stringify({
+      name: form.name.value,
+      username: form.username.value,
+      password: form.password.value,
+    });
+
+    fetch("/register", {
+      method: "POST",
+      body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.err != 0) {
+          warn(data.err - 1, data.message);
+        } else {
+          window.location.replace("/dashboard");
+        }
+      })
+      .catch((err) => console.log(err));
+  });
+</script>
+
+{% endblock %}

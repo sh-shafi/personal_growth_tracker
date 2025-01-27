@@ -1,0 +1,135 @@
+{% extends "base.html" %} {% block style %}
+
+<style>
+  * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .result {
+    text-align: center;
+    color: green;
+    margin: 20px 0;
+  }
+
+  header {
+    width: 80%;
+    max-width: 1200px;
+    display: flex;
+    height: 100px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn {
+    outline: none;
+    border: none;
+    background-color: limegreen;
+    color: whitesmoke;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  h3,
+  h4,
+  .newBtn {
+    margin: 10px;
+  }
+
+  #form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    font-size: 18px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    min-width: 300px;
+  }
+
+  #form input {
+    width: 100%;
+    padding: 7px;
+    font-size: 12px;
+    margin: 10px;
+  }
+
+  #form .btn {
+    outline: none;
+    border: none;
+    background-color: limegreen;
+    color: whitesmoke;
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+</style>
+
+{% endblock %} {% block body %}
+
+<header>
+  <h2>Hello, {{ user["name"] }}!</h2>
+  <a href="/logout" class="btn btn-logout">Logout</a>
+</header>
+<h3>This is your result about {{ topic["title"] }}</h3>
+
+{{ svg_code | safe }}
+
+<div class="result">
+  <p>Coefficient of Variation: {{ results["cv"] }}%</p>
+  <p>{{ results["consistency_feedback"] }}</p>
+  <p>Slope: {{ results["slope"] }}</p>
+  <p>{{ results["progress_feedback"] }}</p>
+</div>
+
+<form id="form" data-id='{{ topic["id"] }}''>
+  <h3>Add value to this Topic</h3>
+  <input type="number" step="0.01" name="value" placeholder="Add Value" required/>
+  <button class="btn">Add</button>
+</form>
+
+<a class="back" href="/">Back to Home</a>
+
+<script>
+  const form = document.getElementById("form");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    fetch(`/topic/${form.dataset.id}/add`, {
+      method: "POST",
+      body: JSON.stringify({value: form.value.value}),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.err != 0) {
+          console.log(data);
+        } else {
+          location.reload()
+        }
+      })
+      .catch((err) => console.log(err));
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %} {% block style %}
+
+<style>
+  * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  header {
+    width: 80%;
+    max-width: 1200px;
+    display: flex;
+    height: 100px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn {
+    outline: none;
+    border: none;
+    background-color: limegreen;
+    color: whitesmoke;
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  a.box {
+    width: 300px;
+    height: 50px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid grey;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    margin: 10px;
+  }
+
+  h3,
+  h4,
+  .newBtn {
+    margin: 10px;
+  }
+</style>
+
+{% endblock %} {% block body %}
+
+<header>
+  <h2>Hello, {{ user["name"] }}!</h2>
+  <a href="/logout" class="btn btn-logout">Logout</a>
+</header>
+<h3>Welcome to your dashboard!</h3>
+<h4>
+  {% if length == 0 %} You have no topics to view! {% else %} You have {{ length
+  }} active {{ "topic" if length == 0 else "topics" }} {% endif %}
+</h4>
+{% for topic in topics %}
+<a href="/topic/{{ topic['id'] }}" class="box">
+  <p>{{ topic["title" ]}}</p>
+</a>
+{% endfor %}
+
+<a href="/new" class="btn newBtn">+ Create New Topic +</a>
+
+{% endblock %}
