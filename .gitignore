@@ -5,3 +5,7 @@
 *.cfg
 
 instance/
+
+.env/
+
+__pycache__/
